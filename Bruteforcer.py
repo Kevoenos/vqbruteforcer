@@ -20,9 +20,9 @@ class Session:
             'https': 'socks5://localhost:9150'
         }
         self.headers = {}
-        self.ip = 0
+        self.ip = None
         self.tried_codes = list()
-        self.current_code = 0
+        self.current_code = None
 
     
     def import_tried_codes(self):
@@ -42,7 +42,6 @@ class Session:
     
     def start(self):
         x = 1
-        self.reset_session()
         self.import_tried_codes()
         while True:
             self.generate_code()
@@ -118,7 +117,11 @@ class Session:
 
 
     def got_new_ip(self):
-        new_ip = requests.get('http://httpbin.org/ip', proxies=self.proxies).text[15:29]
+        new_ip = requests.get('http://httpbin.org/ip', proxies=self.proxies)#.text[15:29]
+        try:
+            ip_addr = re.search('"(.+?)"', new_ip).group(2)
+        except AttributeError:
+            ip_addr = ''
         if new_ip is not self.ip:
             self.ip = new_ip
             return True
